@@ -1,0 +1,402 @@
+---
+title: "Stats 20, 22W -- Homework 4"
+author: "Joanne Qiu -- 405369627"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1}
+my_t <- function(x) {
+  if (is.null(nrow(x))) {
+    attributes(x) <- list(dim = c(1, length(x)))
+  } else {
+    x <- apply(x, 1, cbind)
+  }
+  x
+}
+
+x1 <- c(1,2,3,4,5,6)
+x2 <- matrix(1:6, nrow = 2, ncol = 3)
+t(x1)
+my_t(x1)
+t(x2)
+my_t(x2)
+```
+
+## Question 2
+
+### (a)
+```{r Question 2a}
+my_cor <-function(x, y, use = "everything") {
+  if (use == "pairwise.complete.obs") {
+    if (any(is.na(x))) {
+      i <- which(is.na(x))
+      x <- x[-i]
+      y <- y[-i]
+    } 
+    if (any(is.na(y))) {
+      j <- which(is.na(y))
+      x <- x[-j]
+      y <- y[-j]
+    }
+  } 
+  numerator <- sum((x - mean(x)) * (y - mean(y)))
+  denominator <- sqrt(sum((x - mean(x))^2)) * sqrt(sum((y - mean(y))^2))
+  numerator / denominator
+}
+
+x <- c(1, 3, NA, 7, 9)
+y <- c(2, 5, 6, 8, 11)
+cor(x, y)
+my_cor(x, y)
+cor(x, y, "pairwise.complete.obs")
+my_cor(x, y, "pairwise.complete.obs")
+
+```
+
+### (b)
+```{r Question 2b}
+linreg <- function(x, y, use = "everything") {
+  if (use == "pairwise.complete.obs") {
+    if (any(is.na(x))) {
+      i <- which(is.na(x))
+      x <- x[-i]
+      y <- y[-i]
+    } 
+    if (any(is.na(y))) {
+      j <- which(is.na(y))
+      x <- x[-j]
+      y <- y[-j]
+    }
+  } 
+  r <- my_cor(x, y, use)
+  b <- r * sd(y) / sd(x)
+  a <- mean(y) - b * mean(x)
+  c(a, b)
+}
+
+linreg(x, y, "pairwise.complete.obs")
+```
+
+### (c)
+```{r Question 2c}
+height <- c(61, 62, 63, 64, 66, 68)
+weight <- c(104, 110, 125, 141, 160, 170)
+coefficients <- linreg(height, weight)
+coefficients
+
+```
+The equation of the regression line that predicts weights from heights is y = `r coefficients[1]` + `r coefficients[2]`x. 
+
+### (d)
+```{r Question 2d}
+linreg_mat <- function(x, y) {
+  if (length(x) != length(y)) {
+    stop("The vector arguments must be the same length")
+  }
+  x <- cbind(1, my_t(my_t(x)))
+  solve(my_t(x) %*% x)  %*% my_t(x) %*% my_t(my_t(y))
+}
+```
+
+### (e)
+```{r Question 2e}
+linreg_mat(height, weight)
+```
+The output of `linreg_mat()` is `r linreg_mat(height, weight)`, which is the same as `linreg()`'s output: `r linreg(height, weight)`.
+
+### (f)
+Since `r coefficients[2]` > 0, there is a positive linear relationship between heights and weights. If the height increases by 1 inch, then the model predicts that the weight will increase by 1 pound.
+
+
+## Question 3
+
+### (a)
+```{r Question 3a} 
+`%m%` <- function(A, B) {
+  if (ncol(A) != nrow(B)) {
+    stop("The number of columns of the first matrix must be equal to the number of rows of the second matrix")
+  } else {
+    C <- matrix(0, nrow = nrow(A), ncol(B))
+    for (i in seq_len(nrow(A))) {
+      for (j in seq_len(ncol(B)))
+        C[i, j] = sum(A[i, ]*B[, j])
+    }
+  }
+  C
+}
+```
+
+### (b)
+```{r Question 3b} 
+X <- matrix(6:1, nrow = 2, ncol = 3, byrow = TRUE)
+Y <- matrix(1:9, nrow = 3, ncol = 3)
+X %m% Y
+X %*% Y
+```
+
+## Question 4
+
+### (a)
+```{r Question 4a} 
+`%^%` <- function(A, k) {
+  B <- diag(nrow(A))
+  if (k > 0) {
+    for (i in seq_len(k)) {
+      B <- B %m% A
+    }
+  }
+  B
+}
+```
+
+### (b)
+```{r Question 4b} 
+Z <- matrix(c(0.2, 0.7, 0.1, 0.6, 0.2, 0.2, 0.4, 0.1, 0.5), nrow = 3, ncol = 3, byrow = TRUE)
+Z %^% 0
+Z %^% 5
+Z %^% 50
+Z %^% 500
+```
+
+## Question 5
+
+```{r Question 5} 
+# I feel like there is an easy way to do this without so many if-else statements and for loops, but I can't figure it out for now.
+my_which <- function(x, arr.ind = FALSE) {
+  if (length(x) == 0) {
+    out <- integer(0)
+  } else {
+    if (arr.ind) {
+      out <- matrix(0, nrow = sum(x), ncol = 2)
+      colnames(out) <- c("row", "col")
+      if (sum(x) > 0) {
+        if (is.null(nrow(x))) { # if x is a vector, convert it to a matrix
+          attributes(x) <- list(dim = c(1, length(x)))
+        }
+        k <- 1
+        for (i in seq_len(nrow(x))) { # iterate over each row
+          for (j in seq_len(ncol(x))) { # iterate over each column
+            if (x[i, j]) {
+              out[k, ] <- c(i, j)
+              k <- k + 1
+            }
+          }
+        }
+      }
+    } else {
+      out <- integer(0)
+      attributes(x) <- NULL # no matter what x is, convert it to a vector
+      if (sum(x) > 0) {
+        for (m in seq_along(x)) { # iterate over each column
+          if (x[m]) {
+            out <- c(out, m)
+          }
+        }
+      }
+    }
+  }
+  out
+}
+
+x1 <- matrix(c(FALSE, FALSE, TRUE, FALSE, TRUE, FALSE), nrow = 2, ncol = 3)
+which(x1)
+my_which(x1)
+which(x1, arr.ind = TRUE)
+my_which(x1, arr.ind = TRUE)
+x2 <- matrix(c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE), nrow = 2, ncol = 3)
+which(x2)
+my_which(x2)
+which(x2, arr.ind = TRUE)
+my_which(x2, arr.ind = TRUE)
+y <- logical(0)
+which(y)
+my_which(y)
+which(y, arr.ind = TRUE)
+my_which(y, arr.ind = TRUE)
+```
+
+
+
+## Question 6
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 6}
+jerry <- 2:((8 * 5 %% 3)^-2:(7 > 2))
+jerry
+```
+
+## Question 7
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 7a}
+my_ifelse <- function(test, yes, no) {
+  if (length(yes) < length(test)) {
+    yes <- c(yes, yes[1:(length(test) - length(yes))])
+  }
+  if (length(no) < length(test)) {
+    no <- c(no, no[1:(length(test) - length(yes))])
+  }
+  
+  vec <- rep(NA, length(test))
+  na_index <- is.na(test)
+  test[na_index] <- NA
+  logic_index <- vapply(as.logical(test), isTRUE, logical(1))
+  vec[logic_index] <- yes[logic_index]
+  vec[!logic_index] <- no[!logic_index]
+  vec[na_index] <- NA
+  vec
+}
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 7b}
+x <- (1:10) * pi
+my_ifelse(x %% 1 >= 0.5, x %/% 1 + 1, x %/% 1)
+ifelse(x %% 1 >= 0.5, x %/% 1 + 1, x %/% 1)
+```
+
+### (c)
+<!-- CREATE THE FUNCTIONs IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTIONs AND THEIR INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 7c}
+my_abs <- function(x) {
+  x_neg <- -x
+  logic <- x >= 0
+  abs_vec <- my_ifelse(logic, x, x_neg)
+  nan_index <- is.na(x)
+  abs_vec[nan_index] <- x[nan_index]
+  abs_vec
+}
+
+my_sign <- function(x) {
+  logical <- my_abs(x) == x
+  positive <- rep(1, length(x))
+  negative <- rep(-1, length(x))
+  sign_vec <- my_ifelse(logical, positive, negative)
+  nan_index <- is.na(x)
+  sign_vec[nan_index] <- x[nan_index]
+  sign_vec
+}
+
+a <- c(4, NA, 3, NaN, 1, -8, -7)
+my_abs(a)
+abs(a)
+my_sign(a)
+sign(a)
+```
+<!-- REMINDER TO USE my_ifelse() TO WRITE THE FUNCTIONS. THERE ARE OTHER WAYS TO WRITE THESE FUNCTIONS WITHOUT USING my_ifelse() BUT PLEASE FOLLOW THE DIRECTIONS. -->
+
+## Question 8
+
+### (a)
+<!-- CREATE THE FUNCTIONs IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTIONs AND THEIR INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 8a}
+merge <- function(left, right) {
+  merged <- numeric(0)
+  while (length(left) > 0) {
+    if (length(right) > 0) {
+      if (left[1] < right[1]) {
+        merged <- c(merged, left[1])
+        left <- left[-1]
+      } else {
+        merged <- c(merged, right[1])
+        right <- right[-1]
+      }
+    } else {
+      merged <- c(merged, left)
+      left <- left[-(1:length(left))]
+    }
+  }
+  merged <- c(merged, right)
+  merged
+}
+
+merge_sort <- function(x) {
+  if (length(x) > 1) {
+    left <- x[1:(length(x) %/% 2)]
+    right <- x[(length(x) %/% 2 + 1):length(x)]
+    sorted_left <- merge_sort(left)
+    sorted_right <- merge_sort(right)
+    x <- merge(sorted_left, sorted_right)
+  }
+  x
+}
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW, IT CAN BE JUST COMMANDs; NO NEED TO STORE OBJECTs -->
+```{r Question 8b}
+merge_sort(numeric(0))
+merge_sort(7)
+merge_sort(10:1)
+```
+
+## Question 9
+<!-- MAKE SURE dna.RData IS IN THE SAME DIRECTORY (FOLDER) AS THIS .RMD -->
+```{r Question 9 background}
+load("dna.RData")
+```
+
+### (a)
+<!-- CREATE THE FUNCTION AND TEST IT AS ASKED IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 9a}
+locate_motif <- function(strand, motif) {
+  first_index <- integer(0)
+  for (i in seq_len(length(strand) - length(motif) + 1)) {
+    if (all(strand[i:(i + length(motif) - 1)] == motif)) {
+      first_index <- i
+      break
+    } 
+  }
+  first_index
+}
+
+locate_motif(dna1, c("G", "A", "T", "T", "A", "C", "A"))
+dna1[989:995]
+```
+
+### (b)
+<!-- CREATE THE FUNCTION AND TEST IT AS ASKED IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+<!-- PLAN OUT YOUR APPROACH BEFORE YOU START CODING ANY FUNCTION. -->
+```{r Question 9b}
+extract_longest_substring <- function(strand1, strand2) {
+  out <- character(0)
+  for (i in (seq_len(length(strand1)) - 1)) {
+    for (j in seq_len(i + 1)) {
+      if (length(locate_motif(strand2, strand1[j:(j + length(strand1) - i - 1)])) != 0) {
+        out <- strand1[j:(j + length(strand1) - i - 1)]
+        break
+      }
+    }
+    if (length(out) != 0) {
+      break
+    }
+  }
+  out
+}
+
+seq1 <- c("A", "C", "A", "G", "T")
+seq2 <- c("T", "A", "G", "T", "A")
+extract_longest_substring(seq1, seq2)
+```
+<!-- ENTER YOUR ANSWER BELOW -->
+My `extract_longest_substring()` function worked for `seq1` and `seq2`, but would take forever to find the result for `dna1` and `dna2`. I guess the way of my function checking every substring is too slow and problematic, but I haven't figure out a second and more mathematical way to solve this problem.
+

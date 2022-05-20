@@ -1,0 +1,249 @@
+---
+title: "Stats 20, 22W -- Homework 5"
+author: "Joanne Qiu -- 405369627"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+```{r Question 1 background}
+char <- c("2", "1", "0")
+num <- 0:2
+charnum <- data.frame(char, num, stringsAsFactors = TRUE)
+```
+
+### (a)
+```{r Question 1a}
+as.numeric(char)
+as.numeric(charnum$char)
+```
+`char` is a vector of characters, so applying `as.numeric()` directly to `char` will convert the characters to numbers. On the contrary, `charnum` saves `char` as a factor, which means the levels are stored instead of the characters themselves, so `as.numeric(charnum$char)` will return the values of the levels.
+
+### (b)
+```{r Question 1b}
+as.numeric(as.character(charnum$char))
+```
+
+## Question 2
+
+```{r Question 2 background}
+simple_list <- list("vector" = 1:10, "matrix" = matrix(6:1, nrow = 3, ncol = 2))
+simple_list
+```
+
+### (a)
+(1) We can't name a new component/column as `NULL`.
+(2) `<- NULL` is used to remove a component/column from a list/data frame instead of adding the `Null` object to it.
+
+### (b)
+```{r Question 2b}
+simple_list$null <- list(NULL)
+simple_list
+length(simple_list) == 3
+```
+
+### (c)
+```{r Question 2c}
+simple_list$vector <- list(NULL)
+simple_list
+class(simple_list$vector)
+```
+
+
+## Question 3
+
+```{r Question 3}
+my_scale <- function(x) {
+  z <- (x - min(x)) / (max(x) - min(x))
+  attributes(z) <- list(a = min(x), b = max(x))
+  if (is.null(attributes(x)) || length(attributes(x)) != 2) {
+    z
+  } else {
+    a <- attributes(x)["a"][[1]]
+    b <- attributes(x)["b"][[1]]
+    z <- a + (b - a) * z
+  }
+  z
+}
+
+x <- c(1, 2, 3, 4, 5)
+my_scale(x)
+my_scale(my_scale(x))
+
+attributes(x) <- list(a = 2)
+my_scale(x)
+my_scale(my_scale(x))
+
+attributes(x) <- list(a = 2, b = 3)
+my_scale(x)
+my_scale(my_scale(x))
+```
+
+## Question 4
+
+### (a)
+Write a function called **my_binary()** that inputs a decimal integer **x**, and returns the binary values of the input. You may assume that **x** is a decimal integer at least 1.
+```{r Question 4a}
+# ideal solution
+my_binary <- function(x) {
+  sum <- 0
+  place <- 1 
+  while (x > 0) {
+     sum <- sum + x %% 2 * place
+     place <- place * 10
+     x <- (x / 2) %/% 1
+  }
+  sum
+}
+
+my_binary(5)
+my_binary(16)
+my_binary(31)
+```
+
+### (b)
+The task is to create a **my_iter()** function that returns a numeric vector of points when calculating the root of $$10x^2 - 4x - 5$$ with the fixed point iteration.
+```{r Question 4b}
+# erroneous code
+my_iter <- function(x, n) {
+  if (n == 0 || n %% 1 != 0 || !is.numeric(n) || length(n) != 1 || is.na(n)) {
+    stop("n must be an integer at least 1")
+  }
+  points <- c(NULL)
+  for (i in seq_along(length(1:n))) {
+      x = x - (-0.1) * (10*x^2 - 4*x - 5);
+      points <- c(points, x)
+  }
+  points
+}
+
+# correct code
+my_iter <- function(x, n) {
+  if (n <= 0 || n %% 1 != 0 || !is.numeric(n) || length(n) != 1 || is.na(n)) {
+    stop("n must be an integer at least 1")
+  }
+  points <- numeric(0)
+  for (i in seq_len(n)) {
+      x = x - (-0.1) * (10*x^2 - 4*x - 5);
+      points <- c(points, x)
+  }
+  points
+}
+
+my_iter(-1, 20)
+```
+Errors: (1) n == 0 (2) points <- c(NULL) (3) seq_along(length(1:n)) \
+Explanation: (1) n can not be smaller than 0 (2) should not use c(NULL) to declare a vector (3) seq_along returns a vector whose length is the cardinality of the argument\
+Change: (1) change to n <= 0 (2) declare the numeric vector with numeric(0) (3) use seq_len(n)\
+Reason: (1) will avoid cases of n < 0 (2) numeric(0) creates a length-0 numeric vector (3) seq_len(n) returns a vector from 1 to n
+
+## Question 5
+
+### (a)
+```{r Question 5a}
+my_unlist <- function(x) {
+  j <- 1:length(x)
+  if (all(lapply(x, class) == "factor")) {
+    out <- factor(character(0))
+  }else {
+    out <- logical(0)
+  }
+  for (i in seq_len(length(x))) {
+    out <- c(out, x[[i]])
+  }
+  out
+}
+
+my_unlist(list(c(2, 1, 1), c(3, 2, 1), 2))
+my_unlist(list(factor(c("a", "a", "b", "c")), factor(c("b", "c", "e")), factor(c("a", "d", "b"))))
+my_unlist(list(factor(c("a", "b")), c(1, 2)))
+my_unlist(list(factor(c("a", "b")), factor(c("b", "c")), c("a", "b")))
+```
+
+### (b)
+```{r Question 5b}
+stat_mode <- function(x, first = FALSE) {
+  y <- my_unlist(x)
+  
+  a <- matrix(logical(0), nrow = length(y), ncol = length(unique(y)))
+  count <- matrix(logical(0), nrow = length(unique(y)), ncol = 2)
+  
+  for (i in seq_len(length(y)))
+  {
+    a[i, ] <- unique(y) %in% y[i] 
+  }
+  j <- 1:length(unique(y))
+  
+  if (class(y) == "factor") {
+    count[,1] <- levels(unique(y))
+  } else {
+    count[,1] <- unique(y)
+  }
+  
+  count[j, 2] <- apply(a, 2, sum)
+  output <- count[count[j,2] == count[1,2],1]
+  out <- unique(y[y %in% output])
+  
+  if (first) {
+    out <- out[1]
+  }
+  
+  out
+} 
+
+stat_mode(c(FALSE, FALSE, TRUE, TRUE, FALSE))
+stat_mode(list(c(2, 1, 1), c(3, 2, 1), 2))
+stat_mode(list(c(2, 1, 1), c(3, 2, 1), 2), first = TRUE)
+stat_mode(list(factor(c("control", "treatment1", "control")), factor(c("control", "treatment2"))))
+
+```
+
+### (c)
+```{r Question 5c}
+df_summary <- function(x) {
+  n_obs <- length(rownames(x))
+  n_var <- length(colnames(x))
+  var_names <- colnames(x)
+  column_name <- list()
+  column_name <- c(column_name, x[order(colnames(x))])
+  for (i in seq_len(n_var)) {
+    if (class(column_name[[i]]) != "numeric") {
+      column_name[[i]] <- list("class"= class(column_name[[i]]), 
+                               "modes" = stat_mode(column_name[[i]]),
+                               "mode_count" = sum(column_name[[i]] == stat_mode(column_name[[i]])[1], na.rm = TRUE))
+    } else {
+      column_name[[i]] <- list("class"= class(column_name[[i]]), 
+                               "min" = min(column_name[[i]], na.rm = TRUE),
+                               "mean" = mean(column_name[[i]], na.rm = TRUE),
+                               "max" = max(column_name[[i]], na.rm = TRUE),
+                               "na_count" = sum(is.na(column_name[[i]])))
+    }
+  }
+  list("n_obs" = n_obs, "n_var" = n_var, "var_names" = var_names, "column_name" = column_name)
+}
+
+homework <- data.frame(
+"Homework_One" = c(88, 84, 93, NA), "Homework_Two" = c(95,90,99,60), "Homework_Three" = c(NA,NA,88,23), "Lecture" = c("Lecture 1", "Lecture 1", "Lecture 1", "Lecture 2")
+)
+str(df_summary(homework))
+
+```
+
+### (d)
+```{r Question 5d}
+load("starwars.RData")
+data <- df_summary(starwars)
+```
+
+### (e)
+```{r Question 5e}
+str(data)
+data[["column_name"]][["starships"]][["modes"]]
+```
+The most common starships that the characters in the **starwars** data have piloted is `r data[["column_name"]][["starships"]][["modes"]]`.

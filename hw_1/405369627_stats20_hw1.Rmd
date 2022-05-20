@@ -1,0 +1,323 @@
+---
+title: "Stats 20, 22W -- Homework 1"
+author: "Joanne Qiu -- 405369627"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+### (a)
+<!-- ENTER YOUR ANSWER BELOW -->
+“**Sometimes you have to make the hardest climb to see the most beautiful sunrise.** I read that once on an old lady’s decorative pillow, but it is really how I feel today. I’ve climbed a very weird and rocky mountain, and it was a pain in the ass, and my legs are tired, and I’m starving. But *the sun is rising over a sea of love and waffles and possibility.* So *I’m just gonna relax and take a deep breath and enjoy this view for as long as I possibly can*.” – Leslie Knope (from ***Parks and Recreation***)
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW -->
+|Homework|Midterm|Final Exam|Final Project| 
+|-------:|------:|---------:|------------:| 
+|  18%   |  30%  |   40%    |     12%     | 
+
+### (c)
+<!-- ENTER YOUR ANSWER BELOW -->
+* 2021
+  + Fall
+    - Physics 1B: Physics for Scientists and Engineers: Oscillations, Waves, Electric and Magnetic Fields
+    - Program in Computing 10A: Introduction to Programming
+    - Mathematics 115AH: Linear Algebra (Honors)
+    - Mathematics 61: Introduction to Discrete Structures
+* 2022
+  + Winter
+    - Statistics 20: Introduction to Statistical Programming with R
+    - Program in Computing 10B: Intermediate Programming
+    - Program in Computing 16A: Python with Applications I
+    - Mathematics 151AH: Numerical Analysis Part 1 (Honors)
+    - Statistics 285: Seminar: Computing for Statistics
+    - Honors Collegium 101C: UCLA Undergraduate Journal for Humanities and Social Sciences
+    
+### (d)
+<!-- ENTER YOUR ANSWER BELOW -->
+![Kitten image from: https://time.com/5555118/kitten-cannibalism-usda/](kitten.jpeg) 
+
+## Question 2
+
+### (a)
+<!-- ENTER YOUR ANSWER BELOW -->
+In the first video, the father asked his children to create instructions of making peanut butter and jelly sandwiches. By editing their recipes, the kids realized the necessity of being specific and clear. In the second video, the two people couldn't understand what "Fold in cheese" means on the recipe, so they couldn't continue cooking. Coding is like creating instructions for computer to work. Every step is important. If the logic of our codes is not correct or clear, or there are problematic gaps or error amid the codes, the computer won't be able to understand what we want it to do.
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW -->
+Take two slices of white bread. Get a butter knife and cut a small cube of butter. With the knife, spread the butter on one side of each slice of bread. Get two slices of cheddar cheese. Put the two slices of cheddar cheese on the butter side of one slice of bread. Top the other slice of bread with the butter side faced the cheddar cheese. Put the two slices of bread together into a microwave. Set up the microwave for two minutes. After two minutes, open the microwave and check if the cheese is melting. If it is melting, the grilled cheese sandwich is ready. If it is not, put it back into the microwave and heat it for another two minutes. 
+
+## Question 3
+
+### (a)
+<!-- COMPUTE THE QUANTITIES IN THE CODE CHUNK BELOW -->
+```{r Question 3a}
+w <- 6
+x <- 8
+y <- 16
+z <- 5
+(w^x) / (y^z)
+
+p <- 101
+q <- -8
+l <- 7
+p^(q / l)
+
+a <- 8
+b <- 3
+c <- 4
+d <- 2
+e <- -1
+a + (b * pi) - b + ((c / d) * e)
+```
+
+(i) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The result of (`w` to `x`) over (`y` to `z`) is (`r w^x`) / (`r y^z`) = `r (w^x) / (y^z)`.
+
+(ii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The result of `p` to (`q` over `l`) is `r p`^(`r q / l`) = `r p^(q / l)`.
+
+(iii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The result of `a` + (`b` * `pi`) - `b` + ((`c` / `d`) * `e`) is `r a` + (`r b` * `r pi`) - `r b` + (`r c / d` * `r e`) = `r a + (b * pi) - b + ((c / d) * e)`.
+
+### (b)
+<!-- COMPUTE THE QUANTITIES IN THE CODE CHUNK BELOW -->
+```{r Question 3b}
+x <- 54
+y <- 2
+log(x, base = y)
+
+p <- 2
+exp(exp(sqrt(p)))
+
+a <- exp(pi)
+b <- exp(-pi)
+c <- 2
+(a + b) / c
+```
+
+(i) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The result of log`x` based `y` is log(`r x`, base = `r y`) = `r log(x, base = y)`.
+
+(ii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The result of the exponential of the exponential of the square root of `p` is exp(exp(sqrt(`p`))) = `r exp(exp(sqrt(p)))`.
+
+(iii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The result of the sum of the exponential of `pi` and the exponential of `-pi` over `c` is (`r a` + `r b`) / `r c` = `r (a + b) / c`.
+
+### (c)
+<!-- COMPUTE THE QUANTITIES IN THE CODE CHUNK BELOW -->
+```{r Question 3c}
+x <- 25
+y <- 119
+y %/% x
+
+y %% x
+```
+
+(i) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The number of times that `x` goes into `y` is `r y` %/% `r x` = `r y %/% x`.
+
+(ii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The remainder after dividing `y` by `x` is `r y` %% `r x` = `r y %% x`.
+
+## Question 4
+
+### (a)
+<!-- CREATE THE OBJECTS IN THE CODE CHUNK BELOW -->
+<!-- NAME THE OBJECTS EXACTLY AS STATED IN THE ASSIGNMENT -->
+```{r Question 4a}
+r <- 1
+vol_1 <- (4 / 3) * pi * r^3
+
+r <- 4
+vol_4 <- (4 / 3) * pi * r^3
+```
+
+(i) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The volume of a sphere of radius `r` = 1 is `r vol_1`.
+
+(ii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The volume of a sphere of radius `r` = 4 is `r vol_4`.
+
+### (b)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 4b}
+vol_sphere <- function(r = 1) {
+  (4 / 3) * pi * r^3
+}
+```
+
+### (c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 4c}
+vol_sphere()
+
+vol_sphere(4)
+```
+
+(i) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> `vol_sphere()` = `r vol_sphere()` and `vol_1` = `r vol_1`, so the output of `vol_sphere()` appears to be the same value as `vol_1`.
+
+(ii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> `vol_sphere(4)` = `r vol_sphere(4)` and `vol_4` = `r vol_4`, so the output of vol_sphere(4) appears to be the same value as `vol_4`.
+
+## Question 5
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 5a}
+# x: the number of successes
+# n: the number of trials
+# p0: the hypothesized population proportion
+z_prop <- function(x, n, p0) {
+  p_hat = x / n # The sample proportion is the ratio of the number of successes to the number of trials
+  
+  p_diff = p_hat - p0 # the difference of the proportions
+  sd = sqrt(p0 * (1 - p0) / n) # standard deviation
+  
+  p_diff / sd
+}
+
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5b}
+# x = 10
+# n = 13
+# p0 = 0.6
+z_prop(10, 13, 0.6)
+```
+
+### (c)
+<!-- ENTER YOUR ANSWER BELOW -->
+Since `r z_prop(10, 13, 0.6)` is smaller than 1.96 (alpha = 0.05), we fail to reject the null hypothesis (p = 0.6) and conclude that we do not have enough evidence to state that 60% of residents in the city of Pawnee, Indiana, don't prefer waffles over pancakes.
+
+### (d)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 5d}
+# x = 30
+# n = 39
+# p0 = 0.6
+z_prop(30, 39, 0.6)
+```
+<!-- ENTER YOUR EXPLANATION BELOW --> In this case, `n` increases and `p0` doesn't change, so the standard deviation decreases, which results in an increasing z-statistics.
+
+## Question 6
+
+### (a)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 6a}
+lease_calc <- function(msrp, price, down, n = 36, res = 0.6, mf = 0.001, tax = 0.095) {
+  cost_cap <- price - down # capitalized cost
+  value_res <- msrp * res # residual value
+  depre_mth <- (cost_cap - value_res) / n # monthly depreciation
+  fin_chg_mth <- (cost_cap + value_res) * mf # montly finance charge
+  sub_total <- depre_mth + fin_chg_mth # sub-total
+  sub_total * (1 + tax) # total
+}
+```
+
+### (b)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 6b}
+lease_calc(31495, 29895, 2500, 36, 0.52, 0.0016, 0.095)
+```
+
+## Question 7
+
+### (a)
+<!-- ENTER YOUR ANSWER BELOW -->
+Start with the coin with the highest value and go down one by one. 2 * 25 = 50 > 47, so we need one quarter. Then, 47 - 25 = 22. Since 3 * 10  = 30 > 22, we need two dimes. Now, 22 - 20 = 2, which means we don't need nickels and instead we need two pennies. At last, the minimum number of coins required to equal 47 cents is 1 + 2 + 2 = 5. 
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW -->
+```
+FUNCTION: get_minimum_coins
+INPUT:    n, an arbitrary number of cents
+OUTPUT:   an integer value of the minimum number of coins required to equal n cents.
+
+total <- 0
+total <- the integer part of n cents divided by quarter
+rmd <- the remainder cents after the previous division
+total <- total + the integer part of rmd divided by dime
+rmd <- the remainder cents after the previous division
+total <- total + the integer part of rmd divided by nickels
+rmd <- the remainder cents after the previous division
+total <- total + the integer part of rmd divided by pennies
+total
+```
+
+### (c)
+<!-- CREATE THE FUNCTION IN THE CODE CHUNK BELOW -->
+<!-- NAME THE FUNCTION AND ITS INPUTS EXACTLY AS STATED IN THE ASSIGNENT -->
+```{r Question 7c}
+get_minimum_coins <- function(cents) {
+  total <- 0
+  total <- cents %/% 25
+  rmd <- cents %% 25
+  total <- total + rmd %/% 10
+  rmd <- rmd %% 10
+  total <- total + rmd %/% 5
+  rmd <- rmd %% 5
+  total <- total + rmd %/% 1
+  total
+}
+```
+
+### (d)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 7d}
+get_minimum_coins(31)
+get_minimum_coins(48)
+get_minimum_coins(139)
+```
+
+(i) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The minimum number of coins required to equal 31 cents is `r get_minimum_coins(31)`.
+
+(ii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The minimum number of coins required to equal 48 cents is `r get_minimum_coins(48)`.
+
+(iii) <!-- ENTER YOUR ANSWER TO THE RIGHT OF THIS OR BELOW --> The minimum number of coins required to equal 139 cents is `r get_minimum_coins(139)`.
+
+### (e)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 7e}
+get_minimum_coins(99)
+get_minimum_coins(94)
+```
+<!-- ENTER YOUR EXPLANATION BELOW --> The biggest number of quarter we can get is 3 since 4 * 25 = 100 is not less than 100. Then, the biggest number of dimes we can get is 2 since 3 * 10 = 30 will contain a quarter. The biggest number of nickels we can get is 1 since 2 * 5 = 10 will be a dime. The biggest number of pennies we can get is 4 since 5 * 1 = 5 will be a nickel. Then, we notice that 99 - 3 * 25 = 24 is the most cents left after we have 3 quarters. 24 contains 2 dimes and 4 pennies. Thus, the most number of coins is 9. By observation, we can also change one dime to one nickel to remain 9 coins. In this case, the total of cents is 10 + 5 + 4 + 75 = 94. Therefore, 99 and 94 are the two number of cents that require the most coins.
+
+## Question 8
+<!-- THIS IS THE CODE GIVEN IN THE ASSIGNMENT -->
+```{r Question 8 Background, echo = TRUE}
+x <- 3
+y <- 4
+exp1 <- function() {
+  x^y
+}
+exp2 <- function(x = 2) {
+  x^y
+}
+exp_y <- function(x) {
+  function(y) {
+    x^y
+  }
+}
+exp_y()
+```
+
+### (a)
+<!-- ENTER YOUR ANSWER BELOW -->
+The object in the default argument is in the local environment, so it will take precedence over the objects in the global environment. Thus, `exp1()` takes `x` = 3 whereas `exp2()` takes `x` = 2.
+
+### (b)
+<!-- ENTER YOUR ANSWER BELOW -->
+`exp_y()` has its name and body. `function(y)` is a part of `exp_y`'s body and has its definition, so the definition of `exp_y()` does not have any error. `exp_y()` won't print a numeric value unless it takes a second argument for y and command `function(y)`. In this case, `function(y)` is a subsidiary function inside `exp_y()`. 
+
+### (c)
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 8c}
+exp_y <- function(x, y) {
+  x^y
+}
+
+exp_y(15, 3) # calculate the third power of fifteen
+```

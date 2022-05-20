@@ -1,0 +1,366 @@
+---
+title: "Stats 20, 22W -- Homework 4"
+author: "Joanne Qiu -- 405369627"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+<!-- USE THE CODE CHUNK BELOW -->
+```{r Question 1}
+my_t <- function(x) {
+  if (is.null(nrow(x))) {
+    attributes(x) <- list(dim = c(1, length(x)))
+  } else {
+    x <- apply(x, 1, cbind)
+  }
+  x
+}
+
+x1 <- c(1,2,3,4,5,6)
+x2 <- matrix(1:6, nrow = 2, ncol = 3)
+t(x1)
+my_t(x1)
+t(x2)
+my_t(x2)
+```
+
+## Question 2
+
+### (a)
+```{r Question 2a}
+my_cor <-function(x, y, use = "everything") {
+  if (use == "pairwise.complete.obs") {
+    if (any(is.na(x))) {
+      i <- which(is.na(x))
+      x <- x[-i]
+      y <- y[-i]
+    } 
+    if (any(is.na(y))) {
+      j <- which(is.na(y))
+      x <- x[-j]
+      y <- y[-j]
+    }
+  } 
+  numerator <- sum((x - mean(x)) * (y - mean(y)))
+  denominator <- sqrt(sum((x - mean(x))^2)) * sqrt(sum((y - mean(y))^2))
+  numerator / denominator
+}
+
+x <- c(1, 3, NA, 7, 9)
+y <- c(2, 5, 6, 8, 11)
+cor(x, y)
+my_cor(x, y)
+cor(x, y, "pairwise.complete.obs")
+my_cor(x, y, "pairwise.complete.obs")
+
+```
+
+### (b)
+```{r Question 2b}
+linreg <- function(x, y, use = "everything") {
+  if (use == "pairwise.complete.obs") {
+    if (any(is.na(x))) {
+      i <- which(is.na(x))
+      x <- x[-i]
+      y <- y[-i]
+    } 
+    if (any(is.na(y))) {
+      j <- which(is.na(y))
+      x <- x[-j]
+      y <- y[-j]
+    }
+  } 
+  r <- my_cor(x, y, use)
+  b <- r * sd(y) / sd(x)
+  a <- mean(y) - b * mean(x)
+  c(a, b)
+}
+
+linreg(x, y, "pairwise.complete.obs")
+```
+
+### (c)
+```{r Question 2c}
+height <- c(61, 62, 63, 64, 66, 68)
+weight <- c(104, 110, 125, 141, 160, 170)
+coefficients <- linreg(height, weight)
+coefficients
+
+```
+The equation of the regression line that predicts weights from heights is y = `r coefficients[1]` + `r coefficients[2]`x. 
+
+### (d)
+```{r Question 2d}
+linreg_mat <- function(x, y) {
+  if (length(x) != length(y)) {
+    stop("The vector arguments must be the same length")
+  }
+  x <- cbind(1, my_t(my_t(x)))
+  solve(my_t(x) %*% x)  %*% my_t(x) %*% my_t(my_t(y))
+}
+```
+
+### (e)
+```{r Question 2e}
+linreg_mat(height, weight)
+```
+The output of `linreg_mat()` is `r linreg_mat(height, weight)`, which is the same as `linreg()`'s output: `r linreg(height, weight)`.
+
+### (f)
+Since `r coefficients[2]` > 0, there is a positive linear relationship between heights and weights. If the height increases by 1 inch, then the model predicts that the weight will increase by 1 pound.
+
+
+## Question 3
+
+### (a)
+```{r Question 3a} 
+`%m%` <- function(A, B) {
+  if (ncol(A) != nrow(B)) {
+    stop("The number of columns of the first matrix must be equal to the number of rows of the second matrix")
+  } else {
+    C <- matrix(0, nrow = nrow(A), ncol(B))
+    for (i in seq_len(nrow(A))) {
+      for (j in seq_len(ncol(B)))
+        C[i, j] = sum(A[i, ]*B[, j])
+    }
+  }
+  C
+}
+```
+
+### (b)
+```{r Question 3b} 
+X <- matrix(6:1, nrow = 2, ncol = 3, byrow = TRUE)
+Y <- matrix(1:9, nrow = 3, ncol = 3)
+X %m% Y
+X %*% Y
+```
+
+## Question 4
+
+### (a)
+```{r Question 4a} 
+`%^%` <- function(A, k) {
+  B <- diag(nrow(A))
+  if (k > 0) {
+    for (i in seq_len(k)) {
+      B <- B %m% A
+    }
+  }
+  B
+}
+```
+
+### (b)
+```{r Question 4b} 
+Z <- matrix(c(0.2, 0.7, 0.1, 0.6, 0.2, 0.2, 0.4, 0.1, 0.5), nrow = 3, ncol = 3, byrow = TRUE)
+Z %^% 0
+Z %^% 5
+Z %^% 50
+Z %^% 500
+```
+
+## Question 5
+
+```{r Question 5} 
+# I feel like there is an easy way to do this without so many if-else statements and for loops, but I can't figure it out for now.
+my_which <- function(x, arr.ind = FALSE) {
+  if (mode(x) != "logical") {
+    stop("argument to 'my_which' is not logical")
+  }
+  inds <- seq_along(x)[x & !is.na(x)]
+  if (!arr.ind || length(dim(x)) != 2) {
+    inds
+  } else {
+    matrix(c(row(x)[inds], col(x)[inds]), ncol = 2,
+           dimnames = list(rownames(x)[row(x)[inds]], c("row", "col")))
+  }
+}
+
+x1 <- matrix(c(FALSE, FALSE, TRUE, FALSE, TRUE, FALSE), nrow = 2, ncol = 3)
+which(x1)
+my_which(x1)
+which(x1, arr.ind = TRUE)
+my_which(x1, arr.ind = TRUE)
+x2 <- matrix(c(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE), nrow = 2, ncol = 3)
+which(x2)
+my_which(x2)
+which(x2, arr.ind = TRUE)
+my_which(x2, arr.ind = TRUE)
+y <- logical(0)
+which(y)
+my_which(y)
+which(y, arr.ind = TRUE)
+my_which(y, arr.ind = TRUE)
+```
+
+## Question 6
+
+```{r Question 6 background}
+load("mlb.RData")
+```
+
+### (a)
+#### i.
+```{r Question 6ai}
+tapply(c(hit, ab), team, mean)
+```
+
+#### ii.
+```{r Question 6aii}
+tapply(hit, team, length)
+```
+
+#### iii.
+```{r Question 6aiii}
+table(team[hr >= 1])
+```
+
+### (b)
+
+#### i.
+```{r Question 6bi}
+tapply(hit[ab >= 100] / ab[ab >= 100], team[ab >= 100], max)
+```
+
+#### ii.
+```{r Question 6bii}
+tapply(hit, team, sum) / tapply(ab, team, sum)
+```
+
+### (c)
+```{r Question 6c}
+tapply(hr, list(pos[pos == "catcher"], pos[pos == "centerfield"]), mean)
+```
+The `r rownames(tapply(hr, list(pos, league), mean))[abs(tapply(hr, list(pos, league), mean)[ ,2] - tapply(hr, list(pos, league), mean)[, 1]) == max(abs(tapply(hr, list(pos, league), mean)[ ,2] - tapply(hr, list(pos, league), mean)[, 1]))]` position has the largest difference, which is `r max(abs(tapply(hr, list(pos, league), mean)[ ,2] - tapply(hr, list(pos, league), mean)[, 1]))`, between leagues.
+
+### (d)
+```{r Question 6d}
+apply(table(pos, team), 1, median)
+```
+
+## Question 7
+
+### (a)
+```{r Question 7a}
+my_row <- function(x) {
+  if (nrow(x) == 0 & ncol(x) == 0) {
+    y <- x
+  } else {
+    y <- matrix(rep(1:nrow(x), rep(ncol(x), nrow(x))), nrow = nrow(x), ncol = ncol(x), byrow = TRUE)
+  }
+  y
+}
+
+A <- matrix(1:12, nrow = 3, ncol = 4)
+row(A)
+my_row(A)
+B <- matrix(0, nrow = 0, ncol = 0)
+row(B)
+my_row(B)
+```
+
+### (b)
+```{r Question 7b}
+my_col <- function(x) {
+  if (nrow(x) == 0 & ncol(x) == 0) {
+    y <- x
+  } else {
+    y <- matrix(rep(1:ncol(x), rep(nrow(x), ncol(x))), nrow = nrow(x), ncol = ncol(x))
+  }
+  y
+}
+
+col(A)
+my_col(A)
+col(B)
+my_col(B)
+```
+
+### (c)
+```{r Question 7c}
+# I feel like there is an easy way to do this without so many if-else statements and for loops, but I can't figure it out for now.
+my_diag <- function(x, nrow, ncol) {
+  if (missing(nrow)) {
+    warning("No value provided for 'nrow'")
+    nrow <- length(x)
+  }
+  if (missing(ncol)) {
+    warning("No value provided for 'ncol'")
+    ncol <- length(x)
+  }
+  if (!is.null(nrow(x))) { # x is a matrix
+    if (nrow(x) == 0 & ncol(x) == 0) {
+      y <- numeric(0)
+    } else {
+      y <- integer(0)
+      if (nrow(x) >= ncol(x)) {
+        for (i in seq_len(ncol(x))) {
+          y <- c(y, x[i, i])
+        }
+      } else {
+        for (i in seq_len(nrow(x))) {
+          y <- c(y, x[i, i])
+        }
+      }
+    }
+  }
+  if (is.null(nrow(x))) {
+    if (length(x) > 1) { # x is a vector
+      y <- matrix(0, nrow = nrow, ncol = ncol)
+      for (i in seq_along(x)) {
+        y[i, i] <- x[i]
+      }
+    } else { 
+      if (length(x) == 1) { # x is a scalar or length-1 vector
+        y <- matrix(0, nrow = x, ncol = x)
+        for (i in seq_len(x)) {
+          y[i, i] <- 1
+        }
+      } else { # x is 0
+        y <- matrix(0, nrow = 0, ncol = 0)
+      }
+    }
+    
+  }
+  
+  y
+}
+x <- matrix(1:6, nrow = 3, ncol = 2)
+my_diag(x)
+diag(x)
+y <- c(1, 3, 4)
+my_diag(y)
+diag(y)
+my_diag(y, nrow = 3, ncol = 4)
+diag(y, nrow = 3, ncol = 4)
+diag(3)
+my_diag(3)
+diag(0)
+my_diag(0)
+```
+
+## 8
+
+```{r Question 8 background}
+load("votes.RData")
+```
+
+### (a)
+
+
+
+### (b)
+```{r Question 8b}
+# Sorry, I don't know how to do this problem
+tally_rcv <- function(x) {
+  
+}
+```

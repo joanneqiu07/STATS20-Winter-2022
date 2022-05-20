@@ -1,0 +1,207 @@
+---
+title: "Stats 20, 22W -- Homework 6"
+author: "Joanne Qiu -- 405369627"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+### (a)
+```{r Question 1a}
+# helper functions from chapter 9 note
+is_special_ending <- function(ending) {
+  is_es <- all(ending == c("e", "s"))
+  is_ed <- all(ending == c("e", "d"))
+  is_e_not_le <- ending[2] == "e" & ending[1] != "l"
+  is_es | is_ed | is_e_not_le
+}
+
+rm_special_endings <- function(word_letters) {
+  word_tail <- tail(word_letters, n = 2)
+  if (is_special_ending(word_tail)) {
+    if (word_tail[2] == "e") {
+      word_letters[-length(word_letters)]
+    } else {
+      head(word_letters, n = -2)
+    }
+  } else {
+    word_letters
+  }
+}
+
+is_vowel <- function(letter) {
+  letter %in% c("a", "e", "i", "o", "u", "y")
+}
+
+count_syllables <- function(word) {
+  word_letters <- unlist(strsplit(word, split = ""))
+  if (length(word_letters) <= 3) {
+    1
+  } else {
+    word_letters <- rm_special_endings(word_letters)
+    word_vowels <- is_vowel(word_letters)
+    sum(word_vowels) - sum(diff(which(word_vowels)) == 1)
+  }
+}
+
+keep_words <- function(words) {
+  words[nchar(words) > 0]
+}
+
+# reading_ease function
+reading_ease <- function(x) {
+  if (length(x) > 1) {
+    x <- paste(x, sep = "", collapse = " ")
+  }
+  sentences <- strsplit(x, split = "[.!?:;]") 
+  sentences <- tolower(sentences[[1]])
+  sentences <- gsub(pattern = "[[:punct:]]", replacement = "", sentences)
+
+  words <- strsplit(sentences, split = " ")
+  words <- lapply(words, keep_words)
+  
+  total_words <- sum(sapply(words, length))
+  total_sentences <- length(words)
+  for (i in seq_len(length(words))) {
+    words[[i]] <- vapply(words[[i]], count_syllables, numeric(1))
+  }
+  total_syllables <- sum(sapply(words, sum))
+  RE <- 206.835 - (1.015 * (total_words/total_sentences)) - (84.6 * total_syllables/total_words)
+  RE
+}
+
+
+```
+
+### (b)
+```{r Question 1b}
+waffles_vec <- 
+  c("We need to remember what's important in life: friends, waffles, work.",
+    "Or waffles, friends, work.",
+    "Doesn't matter, but work is third."
+  )
+
+source("waffles.R")
+reading_ease(waffles_vec)
+reading_ease(waffles)
+
+```
+
+## Question 2
+
+```{r Question 2}
+my_nchar <- function(x) {
+  if (length(x) < 1) {
+    x
+  } else {
+    out <- numeric(0)
+    for (i in seq_len(length(x))) {
+      if (is.na(x[i])) {
+        out <- c(out, NA)
+      } else {
+        out <- c(out, length(strsplit(x[i], split = "")[[1]]))
+      }
+    }
+    out
+  }
+}
+
+nchar(c(NULL, NA, 6, "hey"))
+my_nchar(c(NULL, NA, 6, "hey"))
+```
+
+## Question 3
+
+```{r Question 3}
+my_strrep <- function(x, times) {
+  if (length(x) < 1) {
+    out <- character(0)
+  } else {
+    out <- logical(0)
+    for (i in seq_len(length(x))) {
+      out <- c(out, ifelse(is.na(x[i]), x[i], paste(rep(x[i], times), collapse = "")))
+    }
+    out
+  }
+}
+
+b <- c(NULL, NA, "how", "are", "you")
+strrep(b, 6)
+my_strrep(b, 6)
+```
+
+## Question 4
+
+```{r Question 4}
+# ideal solution
+`%is_in%` <- function(x, table) {
+  out <- logical(length(x))
+  if (length(table) < 1) {
+    out
+  } else {
+    temp <- logical(length(x))
+    for (i in seq_len(length(x))) {
+      for (j in seq_len(length(table))) {
+        temp[j] <- identical(x[i], table[j])
+      }
+      out[i] <- any(temp)
+    }
+  }
+  out
+}
+
+x <- c("a", "m", NA, 7)
+table <- c("m", "n", NA, 6)
+null <- integer(0)
+x %in% table
+x %is_in% table
+x %in% null
+x %is_in% null
+null %in% x
+null %is_in% x
+```
+
+
+## Question 5
+
+```{r Question 5}
+my_gregexpr <- function(pattern, text) {
+  out <- list()
+  out[1:length(text)] <- list(NULL)
+  out[1:length(text)] <- text[1:length(text)]
+
+  for (i in seq_len(length(out))) {
+    out[i] <- strsplit(out[[i]], split = " ")
+    index <- which(out[[i]] %in% pattern)
+    pos <- integer(0)
+
+    for (j in seq_len(length(index))) {
+      if (index[j] == 1) {
+        pos <- c(pos, 1)
+      } else {
+        pos <- c(pos, (sum(sapply(out[[i]][1:index[j]-1], nchar)) 
+                 + length(out[[i]][1:index[j]-1]) + 1))
+      }
+    }
+    out[[i]] <- pos
+    if (length(out[[i]]) < 1) {
+      out[[i]] <- -1
+    }
+  }
+  
+  out
+}
+
+pattern <- "how"
+text <- c("how are how how you today", "you are how bad you are how", "no")
+gregexpr(pattern, text)
+my_gregexpr(pattern, text)
+
+```
+

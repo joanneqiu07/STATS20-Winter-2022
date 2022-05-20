@@ -1,0 +1,116 @@
+---
+title: "Stats 20, 22W -- Homework 7"
+author: "Joanne Qiu -- 405369627"
+date: "`r format(Sys.Date(), '%D')`"
+output:
+  html_document:
+    toc: yes            # creates table of contents
+    toc_depth: 4        # toc will include headers <= ####
+    toc_float: yes      # toc always on left of page
+    code_folding: show  # allows hiding of code
+---
+
+## Question 1
+
+### (a)
+```{r Question 1a}
+births <- read.csv("births.csv", stringsAsFactors = TRUE)
+head(births, 3)
+```
+
+### (b)
+```{r Question 1b}
+smoke_freq <- table(births$"Habit")
+smoke_cate <- levels(births$"Habit")
+```
+There are `r smoke_freq[1]` observations in this category. The name of the category is "`r smoke_cate[1]`" , which is nothing.
+
+## (c)
+```{r Question 1c}
+barplot(smoke_freq, legend = TRUE, col = 3:5)
+```
+
+## (d)
+```{r Question 1d}
+new_births <- births[births$Habit != "",]
+new_births <- droplevels(new_births)
+```
+
+## (e)
+```{r Question 1e}
+boxplot(weight ~ Habit, data = new_births)
+```
+
+## Question 2
+
+```{r Question 2}
+with(new_births, hist(weight[Habit == "Smoker"], prob = TRUE, density = 20, col = "red",
+xlab = "Weight (in ounces)", main = "Histogram of Weight by Smoking Habit", xlim = range(weight), ylim = c(0, 0.03)
+))
+# Add histogram for premature baby weights
+with(new_births, hist(weight[Habit == "NonSmoker"], prob = TRUE, density = 30, col = "blue", breaks = 20, add = TRUE
+))
+
+lines(density(new_births$weight[new_births$Habit == "Smoker"]), lwd = 2, col = "red")
+lines(density(new_births$weight[new_births$Habit == "NonSmoker"]), lwd = 2, col = "blue")
+
+abline(v = summary(new_births$weight[new_births$Habit == "Smoker"])[3], lty = 2, col = "red")
+abline(v = summary(new_births$weight[new_births$Habit == "NonSmoker"])[3], lty = 2, col = "blue")
+
+# Add a legend
+legend("topleft", c("Smoker", "NonSmoker","Smoker", "NonSmoker","Smoker", "NonSmoker"), fill = c("red", "blue", 0, 0, 0,0), col = c(NA, NA, "red", "blue","red", "blue"), density = c(20, 30, NA, NA, NA, NA), lwd = c(NA, NA, 2, 2, 1, 1), lty = c(NA, NA, 1, 1, 2, 2))
+
+```
+```{r Question 3 & 4 background}
+library(ggplot2)
+data(diamonds)
+```
+
+## Question 3
+
+### (a)
+```{r Question 3a}
+pairs(diamonds[c("carat", "depth", "table", "price")])
+```
+
+The carat and the price seems to have the strongest relationship, which appears to be linear.
+
+### (b)
+```{r Question 3b}
+plot(price ~ carat, data = diamonds, pch = 2, cex = 0.2, col = clarity)
+legend("topleft", levels(diamonds$clarity), fill = 1:8)
+```
+
+The class of the clarity is `r class(diamonds$clarity)`, so the clarity column actually returns the indices of the levels vector, which are from 1 to 8. Thus, the `col = clarity` will return the default colors of 1 to 8.
+
+### (c)
+```{r Question 3c}
+new_factors <- as.integer(diamonds$clarity)
+new_factors <- factor(new_factors)
+new_colors <- c(240, 10, 5, 566, 412, 322, 131, 631)
+levels(new_factors) <- new_colors
+
+plot(price ~ carat, data = diamonds, pch = 2, cex = 0.2, col = as.integer(as.character(new_factors)))
+legend("topleft", levels(diamonds$clarity), fill = new_colors)
+```
+
+### (d)
+The diamonds with higher-level transparency are more expensive per carat.
+
+## Question 4
+
+### (a)
+```{r Question 4a}
+mean_price <- tapply(diamonds$price, list(diamonds$color, diamonds$cut), mean)
+```
+
+### (b)
+```{r Question 4b}
+matplot(mean_price, type = 'l', col = c(7, 3, 4, 6, 5), lwd = c(1, 1.5, 2, 2.5, 3), lty = c(1, 2, 3, 4, 2), xaxt = "n")
+axis(1, at = 1:length(levels(diamonds$color)), labels = levels(diamonds$color))
+legend("topleft", levels(diamonds$cut), col = c(7, 3, 4, 6, 5), lwd = c(1, 1.5, 2, 2.5, 2), lty = c(1, 2, 3, 4, 2))
+```
+
+### (c)
+From the plot, we can observe that the price of diamonds differs for different levels of color and cut. Regarding the levels of color, color-J diamonds are the most expensive and color-D diamonds are the cheapest. In terms of the levels of cut, the premium cut of diamonds are usually the most expensive whereas the ideal cut of diamonds are the cheapest.
+
